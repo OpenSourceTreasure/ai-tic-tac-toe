@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	    <link rel="shortcut icon" href="data:image/png;base64,AAABAAEAEBACAAEAAQCwAAAAFgAAACgAAAAQAAAAIAAAAAEAAQAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA">
+
+    <title>Tic-Tac-Toe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2c2c2c;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: #444;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px;
+            cursor: pointer;
+        }
+        .cell.taken {
+            pointer-events: none;
+        }
+        .info {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="board" id="board"></div>
+<div class="info">
+    <button onclick="resetGame()">Reset Game</button>
+    <p id="message">Player 1's Turn (Human)</p>
+</div>
+
+<script>
+    const boardSize = 3;
+    let board = Array(boardSize * boardSize).fill(null); // 3x3 board (9 cells)
+    let currentPlayer = -1;  // -1: Player (X), 1: AI (O)
+    let gameOver = false;
+
+    const qValues = {}; // Store Q-values for each state-action pair
+
+    const winningCombinations = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+        [0, 4, 8], [2, 4, 6] // Diagonals
+    ];
+
+    // Initialize Q-values for all possible board states
+    function initQValues() {
+        for (let i = 0; i < boardSize * boardSize; i++) {
+            for (let j = 0; j < boardSize * boardSize; j++) {
+                qValues[i] = qValues[i] || {};
+                qValues[i][j] = 0;  // Initial Q-values for each state-action pair
+            }
+        }
+    }
+
+    // Check for a win
+    function checkWin(board, player) {
+        return winningCombinations.some(combo => combo.every(index => board[index] === player));
+    }
+
+    // Get available moves
+    function getAvailableMoves(board) {
+        return board.map((cell, index) => cell === null ? index : null).filter(index => index !== null);
+    }
+
+    // Minimax algorithm with Q-learning
+    function minimax(board, player) {
+        const availableMoves = getAvailableMoves(board);
+        if (checkWin(board, -1)) return -1;  // Player wins
+        if (checkWin(board, 1)) return 1;   // AI wins
+        if (availableMoves.length === 0) return 0; // Draw
+
+        let bestScore = (player === 1) ? -Infinity : Infinity;
+        let bestMove = null;
+
+        for (let move of availableMoves) {
+            board[move] = player;
+            const score = minimaxScore(board, -player); // Minimax recursion
+            board[move] = null;
+
+            if (player === 1 && score > bestScore || player === -1 && score < bestScore) {
+                bestScore = score;
+                bestMove = move;
+            }
+        }
+
+        return bestMove;
+    }
+
+    // Evaluate the score (Minimax for determining the optimal move)
+    function minimaxScore(board, player) {
+        if (checkWin(board, 1)) return 1; // AI wins
+        if (checkWin(board, -1)) return -1; // Player wins
+        if (getAvailableMoves(board).length === 0) return 0; // Draw
+
+        const nextPlayer = player === 1 ? -1 : 1;
+        let bestScore = player === 1 ? -Infinity : Infinity;
+
+        getAvailableMoves(board).forEach(move => {
+            board[move] = player;
+            const score = minimaxScore(board, nextPlayer);
+            board[move] = null;
+
+            if ((player === 1 && score > bestScore) || (player === -1 && score < bestScore)) {
+                bestScore = score;
+            }
+        });
+
+        return bestScore;
+    }
+
+    // Handle AI move using Q-learning and Minimax
+    function aiMove() {
+        const bestMove = minimax(board, 1);
+        board[bestMove] = 1;  // AI is O (1)
+        updateQValues(bestMove, 1); // Update Q-values based on the AI's choice
+        renderBoard();
+
+        if (checkWin(board, 1)) {
+            document.getElementById('message').textContent = "AI Wins!";
+            gameOver = true;
+        } else {
+            currentPlayer = -1; // Human's turn
+            document.getElementById('message').textContent = "Player 1's Turn";
+        }
+    }
+
+    // Handle player move
+    function playerMove(index) {
+        if (gameOver || board[index] !== null) return;
+        board[index] = -1;  // Player is X (-1)
+        renderBoard();
+
+        if (checkWin(board, -1)) {
+            document.getElementById('message').textContent = "Player 1 Wins!";
+            gameOver = true;
+        } else {
+            currentPlayer = 1; // AI's turn
+            document.getElementById('message').textContent = "Player 2's Turn (AI)";
+            aiMove();
+        }
+    }
+
+    // Update Q-values based on the outcome of a game
+    function updateQValues(move, player) {
+        // Simple update for Q-values: increase/decrease based on whether move was good or bad
+        const availableMoves = getAvailableMoves(board);
+        for (let availableMove of availableMoves) {
+            qValues[move][availableMove] += (player === 1 ? 1 : -1);  // AI gets +1 for good moves, -1 for bad ones
+        }
+    }
+
+    // Render the board visually
+    function renderBoard() {
+        const boardElement = document.getElementById('board');
+        boardElement.innerHTML = '';
+        board.forEach((cell, index) => {
+            const cellElement = document.createElement('div');
+            cellElement.classList.add('cell');
+            if (cell === 1) {
+                cellElement.textContent = 'O';  // AI (O)
+            } else if (cell === -1) {
+                cellElement.textContent = 'X';  // Player (X)
+            }
+            cellElement.onclick = () => playerMove(index);
+            if (cell !== null) cellElement.classList.add('taken');
+            boardElement.appendChild(cellElement);
+        });
+    }
+
+    // Reset the game
+    function resetGame() {
+        board = Array(boardSize * boardSize).fill(null);
+        currentPlayer = -1;  // Human starts
+        gameOver = false;
+        document.getElementById('message').textContent = "Player 1's Turn (Human)";
+        renderBoard();
+    }
+
+    // Initialize Q-values and start the game
+    initQValues();
+    renderBoard();
+</script>
+
+</body>
+</html>
