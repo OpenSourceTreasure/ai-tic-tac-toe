@@ -1,4 +1,6 @@
-AI Tic Tac Toe
+ ✔ AI Tic Tac Toe
+
+💡 Run Tic-Tac-Toe.html (simple!)
 
 ✅ Zero dependencies
 
@@ -9,6 +11,8 @@ AI Tic Tac Toe
 🎷 The algorithm explores all possible board states (all possible moves for both the AI and the player) in a tree-like structure. Each node represents a potential board configuration, and each move corresponds to a branch in the tree.
 
 🎸 The algorithm evaluates all possible moves at each level, choosing the best move for the AI and the best move for the player in the recursive tree. The AI moves to maximize its score, and the player moves to minimize the AI's score.
+
+💬 For those interested, here is more detailed info:
 
 Steps of the Minimax Algorithm in the Game:
 AI Move: The AI evaluates all possible moves on the board and calculates the best move using Minimax.
