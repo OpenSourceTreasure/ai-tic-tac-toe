@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2f2f2f;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+
+        .container {
+            background-color: #444;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            margin: 20px auto;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            text-align: center;
+            line-height: 100px;
+            font-size: 36px;
+            border: 2px solid #666;
+            background-color: #333;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, transform 0.2s;
+        }
+
+        .cell:hover {
+            background-color: #555;
+            transform: scale(1.05);
+        }
+
+        .cell.taken {
+            cursor: not-allowed;
+            background-color: #555;
+        }
+
+        .message {
+            text-align: center;
+            font-size: 20px;
+            color: #fff;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+        .btn:focus {
+            outline: none;
+        }
+
+        .reset-btn {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Tic-Tac-Toe with AI</h1>
+    <div id="board" class="board"></div>
+    <div id="message" class="message"></div>
+    <button class="btn reset-btn" onclick="resetGame()">Reset Game</button>
+</div>
+
+<script>
+    const board = document.getElementById('board');
+    const message = document.getElementById('message');
+    const playerSymbol = 'X';
+    const aiSymbol = 'O';
+    let currentBoard = [
+        ['', '', ''],
+        ['', '', ''],
+        ['', '', '']
+    ];
+    let isGameOver = false;
+
+    // Create the board UI
+    function createBoard() {
+        board.innerHTML = '';
+        for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 3; col++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.addEventListener('click', () => makeMove(row, col));
+                cell.dataset.row = row;
+                cell.dataset.col = col;
+                board.appendChild(cell);
+            }
+        }
+    }
+
+    // Handle player's move
+    function makeMove(row, col) {
+        if (currentBoard[row][col] !== '' || isGameOver) return;
+        currentBoard[row][col] = playerSymbol;
+        renderBoard();
+        if (checkWinner(playerSymbol)) {
+            message.textContent = 'You win!';
+            isGameOver = true;
+            return;
+        }
+        aiMove();
+    }
+
+    // AI makes its move
+    function aiMove() {
+        const bestMove = getBestMove();
+        currentBoard[bestMove.row][bestMove.col] = aiSymbol;
+        renderBoard();
+        if (checkWinner(aiSymbol)) {
+            message.textContent = 'AI wins!';
+            isGameOver = true;
+        }
+    }
+
+    // Get the best move for AI using the minimax algorithm
+    function getBestMove() {
+        let bestScore = -Infinity;
+        let move;
+        for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 3; col++) {
+                if (currentBoard[row][col] === '') {
+                    currentBoard[row][col] = aiSymbol;
+                    const score = minimax(currentBoard, false);
+                    currentBoard[row][col] = '';
+                    if (score > bestScore) {
+                        bestScore = score;
+                        move = { row, col };
+                    }
+                }
+            }
+        }
+        return move;
+    }
+
+    // Minimax algorithm to evaluate the board
+    function minimax(board, isMaximizing) {
+        if (checkWinner(aiSymbol)) return 1;
+        if (checkWinner(playerSymbol)) return -1;
+        if (isBoardFull()) return 0;
+
+        let bestScore = isMaximizing ? -Infinity : Infinity;
+
+        for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 3; col++) {
+                if (board[row][col] === '') {
+                    board[row][col] = isMaximizing ? aiSymbol : playerSymbol;
+                    const score = minimax(board, !isMaximizing);
+                    board[row][col] = '';
+                    bestScore = isMaximizing ? Math.max(score, bestScore) : Math.min(score, bestScore);
+                }
+            }
+        }
+        return bestScore;
+    }
+
+    // Check if a player has won
+    function checkWinner(symbol) {
+        for (let i = 0; i < 3; i++) {
+            if (currentBoard[i][0] === symbol && currentBoard[i][1] === symbol && currentBoard[i][2] === symbol) return true;
+            if (currentBoard[0][i] === symbol && currentBoard[1][i] === symbol && currentBoard[2][i] === symbol) return true;
+        }
+        if (currentBoard[0][0] === symbol && currentBoard[1][1] === symbol && currentBoard[2][2] === symbol) return true;
+        if (currentBoard[0][2] === symbol && currentBoard[1][1] === symbol && currentBoard[2][0] === symbol) return true;
+        return false;
+    }
+
+    // Check if the board is full (tie condition)
+    function isBoardFull() {
+        return currentBoard.every(row => row.every(cell => cell !== ''));
+    }
+
+    // Render the board
+    function renderBoard() {
+        const cells = board.getElementsByClassName('cell');
+        for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 3; col++) {
+                const index = row * 3 + col;
+                const cell = cells[index];
+                cell.textContent = currentBoard[row][col];
+                if (currentBoard[row][col] !== '') {
+                    cell.classList.add('taken');
+                } else {
+                    cell.classList.remove('taken');
+                }
+            }
+        }
+        if (!isGameOver && !isBoardFull()) {
+            message.textContent = 'Your turn!';
+        } else if (isBoardFull()) {
+            message.textContent = 'It\'s a tie!';
+        }
+    }
+
+    // Reset the game
+    function resetGame() {
+        currentBoard = [
+            ['', '', ''],
+            ['', '', ''],
+            ['', '', '']
+        ];
+        isGameOver = false;
+        message.textContent = 'Your turn!';
+        renderBoard();
+    }
+
+    // Initialize the game
+    createBoard();
+</script>
+
+</body>
+</html>
