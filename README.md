@@ -6,6 +6,8 @@
 
 ✅ Minimax Algorithm guarantees its not easy to win!
 
+🎤 My goal is to demonstrate how easy it is to create an AI game in html-javascript.
+
 🥁 The Minimax algorithm is a decision-making algorithm typically used in game theory for two-player turn-based games like Tic-Tac-Toe, Chess, and Checkers. It works by recursively evaluating all possible moves and selecting the optimal move based on the current state of the game board.
 
 🎷 The algorithm explores all possible board states (all possible moves for both the AI and the player) in a tree-like structure. Each node represents a potential board configuration, and each move corresponds to a branch in the tree.
