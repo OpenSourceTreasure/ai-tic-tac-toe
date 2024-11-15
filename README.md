@@ -12,7 +12,7 @@
 
 🎸 The algorithm evaluates all possible moves at each level, choosing the best move for the AI and the best move for the player in the recursive tree. The AI moves to maximize its score, and the player moves to minimize the AI's score.
 
-<p align="center">[Project Screenshot](https://github.com/OpenSourceTreasure/ai-tic-tac-toe/blob/main/tic-tac-toe.png)</p>
+<p align="center"><img src="https://github.com/OpenSourceTreasure/ai-tic-tac-toe/blob/main/tic-tac-toe.png"></p>
 
 
 💬 For those interested, here is more detailed info:
