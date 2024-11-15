@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	    <link rel="shortcut icon" href="data:image/png;base64,AAABAAEAEBACAAEAAQCwAAAAFgAAACgAAAAQAAAAIAAAAAEAAQAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA">
+    <link rel="shortcut icon" href="data:image/png;base64,AAABAAEAEBACAAEAAQCwAAAAFgAAACgAAAAQAAAAIAAAAAEAAQAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA">
 
     <title>Tic-Tac-Toe</title>
     <style>
@@ -140,6 +140,9 @@
         if (checkWin(board, 1)) {
             document.getElementById('message').textContent = "AI Wins!";
             gameOver = true;
+        } else if (getAvailableMoves(board).length === 0) {
+            document.getElementById('message').textContent = "It's a Draw!";
+            gameOver = true;
         } else {
             currentPlayer = -1; // Human's turn
             document.getElementById('message').textContent = "Player 1's Turn";
@@ -154,6 +157,9 @@
 
         if (checkWin(board, -1)) {
             document.getElementById('message').textContent = "Player 1 Wins!";
+            gameOver = true;
+        } else if (getAvailableMoves(board).length === 0) {
+            document.getElementById('message').textContent = "It's a Draw!";
             gameOver = true;
         } else {
             currentPlayer = 1; // AI's turn
