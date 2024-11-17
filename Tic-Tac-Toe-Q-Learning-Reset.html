@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe with Q-learning</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #222; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; flex-direction: column; }
+        #board { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: repeat(3, 100px); gap: 5px; }
+        .cell { width: 100px; height: 100px; display: flex; justify-content: center; align-items: center; background-color: #444; font-size: 24px; cursor: pointer; }
+        button { margin-top: 20px; padding: 10px; background-color: #333; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #555; }
+        #message { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div id="board"></div>
+    <button onclick="resetGame()">Reset Game</button>
+    <button onclick="resetAI()">Reset AI</button>
+    <p id="message">Player 1's Turn (Human)</p>
+
+    <script>
+        const boardSize = 3;
+        let board = Array(boardSize * boardSize).fill(null);
+        let currentPlayer = -1; // Player 1 (Human) starts the game
+        let gameOver = false;
+
+        // Q-learning variables
+        const qValues = {}; // Store Q-values: {state: {action: value}}
+
+        function renderBoard() {
+            const boardElement = document.getElementById('board');
+            boardElement.innerHTML = '';
+            for (let i = 0; i < board.length; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.textContent = board[i];
+                cell.onclick = () => playerMove(i);
+                boardElement.appendChild(cell);
+            }
+        }
+
+        // Reset Q-values to start fresh
+        function resetQValues() {
+            for (let i = 0; i < boardSize * boardSize; i++) {
+                qValues[i] = qValues[i] || {};
+                for (let j = 0; j < boardSize * boardSize; j++) {
+                    qValues[i][j] = 0; // Reset Q-values to 0
+                }
+            }
+        }
+
+        // Reset only the AI (Q-values)
+        function resetAI() {
+            resetQValues(); // Reset Q-values for AI
+            alert("AI has been reset. It will now start learning from scratch!");
+        }
+
+        // Check for winner
+        function checkWin(board, player) {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+                [0, 4, 8], [2, 4, 6]              // Diagonals
+            ];
+            return winPatterns.some(pattern => pattern.every(index => board[index] === player));
+        }
+
+        // Get available moves
+        function getAvailableMoves(board) {
+            return board.map((cell, index) => cell === null ? index : -1).filter(index => index !== -1);
+        }
+
+        // Player's move (Human)
+        function playerMove(index) {
+            if (board[index] !== null || gameOver) return;
+            board[index] = currentPlayer === -1 ? 'X' : 'O';
+            renderBoard();
+
+            if (checkWin(board, currentPlayer === -1 ? 'X' : 'O')) {
+                document.getElementById('message').textContent = `${currentPlayer === -1 ? 'Player 1' : 'AI'} Wins!`;
+                gameOver = true;
+                return;
+            }
+
+            currentPlayer = 1; // Switch to AI's turn
+            aiMove(); // AI makes its move
+        }
+
+        // AI's move (Random move initially after reset)
+        function aiMove() {
+            const availableMoves = getAvailableMoves(board);
+            const randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+            board[randomMove] = currentPlayer === 1 ? 'O' : 'X';
+            updateQValues(randomMove, 1); // Update Q-values for AI move
+
+            renderBoard();
+
+            if (checkWin(board, currentPlayer === 1 ? 'O' : 'X')) {
+                document.getElementById('message').textContent = "AI Wins!";
+                gameOver = true;
+            } else if (getAvailableMoves(board).length === 0) {
+                document.getElementById('message').textContent = "It's a Draw!";
+                gameOver = true;
+            } else {
+                currentPlayer = -1; // Player's turn
+                document.getElementById('message').textContent = "Player 1's Turn";
+            }
+        }
+
+        // Update Q-values for AI's move
+        function updateQValues(move, reward) {
+            const availableMoves = getAvailableMoves(board);
+            availableMoves.forEach((action) => {
+                qValues[move][action] = reward; // Set Q-value to reward (will be refined later)
+            });
+        }
+
+        // Reset the game state
+        function resetGame() {
+            board = Array(boardSize * boardSize).fill(null); // Clear board
+            currentPlayer = -1; // Player 1's turn
+            gameOver = false;
+            document.getElementById('message').textContent = "Player 1's Turn (Human)";
+            renderBoard();
+            resetQValues(); // Reset Q-values for AI
+        }
+
+        renderBoard(); // Initialize board display
+    </script>
+</body>
+</html>
