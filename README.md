@@ -8,7 +8,7 @@
 
 🎤 My goal is to demonstrate how easy it is to create an AI game in html-javascript.
 
-🍷 There is a second Tic Tac Toe game that utilizes the Q Learning Algorithm. I noticed a difference in the playing style. I hope you do too. In this version, the AI uses a combination of Minimax for immediate decision-making but with an added layer of Q-learning. This means it doesn't just play optimally each time. Instead, it learns from previous games and adjusts its strategy over time based on the Q-values of moves that have been successful (win/loss). The second version has a button that lets you reset the Q-Learning AI!
+🍷 There is a second Tic Tac Toe game that utilizes the Q Learning Algorithm. I noticed a difference in the playing style. I hope you do too. In this version, the AI uses a combination of Minimax for immediate decision-making but with an added layer of Q-learning. This means it doesn't just play optimally each time. Instead, it learns from previous games and adjusts its strategy over time based on the Q-values of moves that have been successful (win/loss). The file named Tic-Tac-Toe-Q-Learning-Reset.html has a button that lets you reset the Q-Learning AI!
 
 🥁 The Minimax algorithm is a decision-making algorithm typically used in game theory for two-player turn-based games like Tic-Tac-Toe, Chess, and Checkers. It works by recursively evaluating all possible moves and selecting the optimal move based on the current state of the game board.
 
